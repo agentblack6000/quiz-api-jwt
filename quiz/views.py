@@ -3,14 +3,16 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from quiz.models import AnswerChoice, Question, Quizzes
-from quiz.serializers import AnswerChoiceSerializer, QuestionSerializer, QuizzesSerializer, StudentRegistrationSerializer
-from .permissions import IsStudent, IsTeacher, IsTeacherOrAdmin
+from quiz.models import AnswerChoice, Question, Quizzes, Student, Teacher
+from quiz.serializers import AnswerChoiceSerializer, QuestionSerializer, QuizzesSerializer, StudentRegistrationSerializer, StudentSerializer, TeacherSerializer
+from .permissions import IsAdmin, IsTeacherOrAdmin
 
 class StudentRegistrationView(generics.CreateAPIView):
+    """
+    Docstring for StudentRegistrationView
+    """
     permission_classes = []
     serializer_class = StudentRegistrationSerializer
-
 
 
 class QuestionList(generics.ListCreateAPIView):
@@ -65,12 +67,14 @@ class AddAnswerChoices(generics.ListCreateAPIView):
     serializer_class = AnswerChoiceSerializer
 
 
-# class StudentClassList(generics.ListCreateAPIView):
-#     """
-#     Docstring for StudentClassList
-#     """
-#     queryset = Student.objects.all()
-#     serializer_class = StudentSerializer
+class StudentClassList(generics.ListCreateAPIView):
+    """
+    Docstring for StudentClassList
+    """
+    permission_classes = [IsAuthenticated]
+
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
 
 
 class QuizzesList(generics.ListCreateAPIView):
@@ -83,9 +87,11 @@ class QuizzesList(generics.ListCreateAPIView):
     serializer_class = QuizzesSerializer
 
 
-# class TeacherList(generics.ListCreateAPIView):
-#     """
-#     Docstring for TeacherList
-#     """
-#     queryset = Teacher.objects.all()
-#     serializer_class = TeacherSerializer
+class TeacherList(generics.ListCreateAPIView):
+    """
+    Docstring for TeacherList
+    """
+    permission_classes = [IsAdmin]
+
+    queryset = Teacher.objects.all()
+    serializer_class = TeacherSerializer

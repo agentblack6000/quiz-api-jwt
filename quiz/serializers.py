@@ -2,6 +2,13 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from quiz.models import AnswerChoice, Question, Quizzes, Student, Teacher
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", ]
+
+
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
@@ -38,6 +45,24 @@ class StudentRegistrationSerializer(serializers.ModelSerializer):
         user.groups.add(student_group)
 
         return user
+
+
+class StudentSerializer(UserSerializer):
+    """
+    Docstring for StudentSerializer
+    """
+
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields
+
+
+class TeacherSerializer(UserSerializer):
+    """
+    Docstring for TeacherSerializer
+    """
+
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields
 
 
 class TeacherSerializer(serializers.ModelSerializer):
