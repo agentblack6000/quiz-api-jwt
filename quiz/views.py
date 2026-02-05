@@ -71,7 +71,7 @@ class StudentClassList(generics.ListCreateAPIView):
     """
     Docstring for StudentClassList
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacherOrAdmin]
 
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
