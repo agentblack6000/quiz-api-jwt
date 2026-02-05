@@ -50,11 +50,19 @@ class DisplayQuiz(APIView):
     def get(self, request, pk, format=None):
         try:
             quiz = Quizzes.objects.get(pk=pk)
+            questions = Question.objects.filter(associated_quizzes__id=pk)
+            quiz_data = []
+
+            for question in questions:
+                answer_choices = AnswerChoice.objects.filter(question=question.id)
+                question_data = QuestionSerializer(question).data
+                answer_choices_data = AnswerChoiceSerializer(answer_choices, many=True).data
+                quiz_data.append([question_data, answer_choices_data])
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
         quiz_serializer = QuizzesSerializer(quiz)
-        return Response(quiz_serializer.data)
+        return Response([quiz_serializer.data, quiz_data])
 
 
 class AddAnswerChoices(generics.ListCreateAPIView):
