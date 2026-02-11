@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-    
+
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
@@ -31,10 +31,11 @@ class Question(models.Model):
         return self.question_text
 
 
-
 class AnswerChoice(models.Model):
     choice_text = models.CharField(max_length=500)
-    question = models.ForeignKey(Question, related_name="choices",on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        Question, related_name="choices", on_delete=models.CASCADE
+    )
 
     is_correct = models.BooleanField(default=False)
 
