@@ -4,7 +4,7 @@ from quiz import views
 
 urlpatterns = [
     path("register/", views.StudentRegistrationView.as_view()),
-    path("login/", views.UserLoginTokenObtainPairSerializer.as_view()),
+    path("login/", views.UserLoginObtainTokenPairView.as_view()),
     path("questions/", views.QuestionList.as_view()),
     path("questions/<int:pk>/", views.DetailedQuestionView.as_view()),
     path("answers/", views.AddAnswerChoices.as_view()),

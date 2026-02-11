@@ -31,7 +31,7 @@ class StudentRegistrationView(generics.CreateAPIView):
     serializer_class = StudentRegistrationSerializer
 
 
-class UserLoginTokenView(TokenObtainPairView):
+class UserLoginObtainTokenPairView(TokenObtainPairView):
     serializer_class = UserLoginTokenObtainPairSerializer
 
 
@@ -134,3 +134,4 @@ class TeacherList(generics.ListCreateAPIView):
 
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
+
