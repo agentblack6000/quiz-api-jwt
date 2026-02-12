@@ -46,6 +46,22 @@ class AttemptQuestionSerializer(serializers.ModelSerializer):
         fields = ["id", "question_text"]
 
 
+class SubmitQuestionSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        model = Question
+        fields = ["id"]
+
+
+class SubmitAnswerChoiceSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        model = AnswerChoice
+        fields = ["id", "is_correct"]
+
+
 class AttemptAnswerChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnswerChoice

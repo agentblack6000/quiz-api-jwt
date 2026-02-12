@@ -1,6 +1,7 @@
 """
 views.py
 """
+from django.db import models
 from quiz.models import AnswerChoice, Question, Quizzes, Student, Teacher
 from quiz.serializers import (
     AnswerChoiceSerializer,
@@ -11,6 +12,8 @@ from quiz.serializers import (
     TeacherSerializer,
     AttemptAnswerChoiceSerializer,
     AttemptQuestionSerializer,
+    SubmitQuestionSerializer,
+    SubmitAnswerChoiceSerializer,
     UserLoginTokenObtainPairSerializer,
 )
 from rest_framework import generics
@@ -135,3 +138,77 @@ class TeacherList(generics.ListCreateAPIView):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
 
+
+class SubmitQuiz(APIView):
+    """
+    Docstring for SubmitQuiz
+    """
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def get(self, request, pk, format=None):
+        try:
+            quiz = Quizzes.objects.get(pk=pk)
+            questions = Question.objects.filter(associated_quizzes__id=pk)
+            quiz_data = []
+
+            for question in questions:
+                answer_choices = AnswerChoice.objects.filter(question=question.id)
+                question_data = AttemptQuestionSerializer(question).data
+                answer_choices_data = AttemptAnswerChoiceSerializer(
+                    answer_choices, many=True
+                ).data
+                quiz_data.append([question_data, answer_choices_data])
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        quiz_serializer = QuizzesSerializer(quiz)
+        return Response([quiz_serializer.data, quiz_data])
+
+    def post(self, request, pk, format=None):
+        try:
+            quizzes_serializer = QuizzesSerializer(data=request.data[0])
+            
+            if not quizzes_serializer.is_valid():
+                print("quiz fail")
+                raise Exception
+            
+            # TODO: Setup logic for prefetching related questions based on the Quiz ID instead
+            # of performing multiple read operations on the DB
+
+            quiz_attempt_data = request.data[1]
+
+            score_calculation = []
+
+            for question_answer_data in quiz_attempt_data:
+                question_serializer = SubmitQuestionSerializer(
+                    data=question_answer_data[0]
+                )
+                answer_choices_serializer = SubmitAnswerChoiceSerializer(
+                    data=question_answer_data[1], many=True
+                )
+
+                if (
+                    question_serializer.is_valid()
+                    and answer_choices_serializer.is_valid()
+                ):
+                    question = Question.objects.get(id=question_serializer.data["id"])
+                    answer_choices = AnswerChoice.objects.filter(is_correct=True, question=question)
+
+                    correct_answer_ids = [choice.id for choice in answer_choices]
+
+                    for choice in answer_choices_serializer.data:
+                        if choice["is_correct"]:
+                            if choice["id"] in correct_answer_ids:
+                                score_calculation.append(question)
+                else:
+                    raise Exception
+
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        question_serializer = AttemptQuestionSerializer(score_calculation, many=True)
+        return Response([question_serializer.data], status=status.HTTP_202_ACCEPTED)
